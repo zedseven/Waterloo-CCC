@@ -1,0 +1,61 @@
+dimensions = input().split(' ')
+gridWidth = int(dimensions[1])
+gridHeight = int(dimensions[0])
+grid = [''] * gridHeight
+for y in range(gridHeight):
+    grid[y] = input()
+startPos = []
+for y in range(1, gridHeight - 1):
+    for x in range(1, gridWidth - 1):
+        if grid[y][x] == 'S':
+            startPos = [x, y]
+            break
+    if len(startPos) > 0:
+        break
+doneSteps = -1
+checkCells = []
+def checkCell(x, y, cx, cy, steps):
+    global doneSteps
+    global checkCells
+    go = False
+    print('checking cell: (' + str(x) + ', ' + str(y) + ') - (' + str(cx) + ', ' + str(cy) + ') - ' + grid[y][x])
+    if grid[y][x] == 'S':
+        doneSteps = steps + 1
+    if grid[y][x] == '.':
+        go = True
+    if grid[y][x] == 'L' and cx < x:
+        go = True
+    if grid[y][x] == 'R' and cx > x:
+        go = True
+    if grid[y][x] == 'U' and cy < y:
+        go = True
+    if grid[y][x] == 'D' and cy > y:
+        go = True
+    if go:
+        if grid[y][x] == '.':
+            if grid[y][x - 1] != 'C' and grid[y][x + 1] != 'C' and grid[y - 1][x] != 'C' and grid[y + 1][x] != 'C':
+                checkCells.append([x, y, cx, cy, steps + 1])
+        else:
+            checkCells.append([x, y, cx, cy, steps])
+def findSteps(x, y):
+    global doneSteps
+    global checkCells
+    print('finding steps: (' + str(x) + ', ' + str(y) + ')')
+    checkCells.append([x, y, x, y, 0])
+    while doneSteps == -1 and len(checkCells) > 0:
+        if checkCells[0][2] != checkCells[0][0] - 1 or checkCells[0][3] != checkCells[0][1]:
+            checkCell(checkCells[0][0] - 1, checkCells[0][1], checkCells[0][0], checkCells[0][1], checkCells[0][4])
+        if checkCells[0][2] != checkCells[0][0] + 1 or checkCells[0][3] != checkCells[0][1] and doneSteps == -1:
+            checkCell(checkCells[0][0] + 1, checkCells[0][1], checkCells[0][0], checkCells[0][1], checkCells[0][4])
+        if checkCells[0][2] != checkCells[0][0] or checkCells[0][3] != checkCells[0][1] - 1 and doneSteps == -1:
+            checkCell(checkCells[0][0], checkCells[0][1] - 1, checkCells[0][0], checkCells[0][1], checkCells[0][4])
+        if checkCells[0][2] != checkCells[0][0] or checkCells[0][3] != checkCells[0][1] + 1 and doneSteps == -1:
+            checkCell(checkCells[0][0], checkCells[0][1] + 1, checkCells[0][0], checkCells[0][1], checkCells[0][4])
+        checkCells.pop(0)
+    return doneSteps
+for y in range(1, gridHeight - 1):
+    for x in range(1, gridWidth - 1):
+        if grid[y][x] == '.':
+            print(findSteps(x, y))
+            doneSteps = -1
+            checkCells = []
